@@ -3,7 +3,7 @@
 namespace Tuurbo\Spreedly;
 
 use GuzzleHttp\ClientInterface as GuzzleInterface;
-use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use GuzzleHttp\Message\Response as GuzzleResponse;
 use GuzzleHttp\Exception\ConnectException as GuzzleConnectException;
 
 class Client
@@ -61,7 +61,7 @@ class Client
 
             if (!in_array($response->getStatusCode(), [200, 201])) {
                 $contentType = $response->getHeader('Content-Type');
-                $notJson = array_shift($contentType) !== 'application/json; charset=utf-8';
+                $notJson = $contentType !== 'application/json; charset=utf-8';
 
                 if ($response->getStatusCode() == 404 && $notJson) {
                     throw new Exceptions\NotFoundHttpException();
@@ -95,7 +95,7 @@ class Client
         if ($response instanceof GuzzleResponse) {
             $contentType = $response->getHeader('Content-Type');
 
-            if (array_shift($contentType) === 'application/json; charset=utf-8') {
+            if ($contentType === 'application/json; charset=utf-8') {
                 $response = $response->getBody();
                 $response = json_decode($response, true);
             } else {
